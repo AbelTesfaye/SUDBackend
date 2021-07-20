@@ -44,7 +44,7 @@ app.post('/login', async (req, res) => {
       expiresIn: 360 * 24 * 60 * 60 /* Expire in 360 days */
     });
 
-    res.send({ token })
+    res.send({ token, userInfo: u.toJSON() })
 
   } catch (ex) {
     console.error(ex)
