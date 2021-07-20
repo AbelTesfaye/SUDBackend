@@ -30,6 +30,7 @@ const Event = sequelize.define('Event', {
     startTime: { type: DataTypes.DATE, allowNull: false },
     endTime: { type: DataTypes.DATE, allowNull: false },
 
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
     description: { type: DataTypes.TEXT, defaultValue: "" },
 });
 
@@ -86,8 +87,11 @@ Task.belongsTo(User);
 
 User.belongsTo(SupportGroup);
 
+User.belongsTo(User, { as: 'physician' });
+
 Message.belongsTo(User, { as: 'from' });
-Message.belongsTo(User, { as: 'to' });
+Message.belongsTo(User, { as: 'toUser' });
+Message.belongsTo(SupportGroup, { as: 'toSupportGroup' });
 
 MoodQuestionAnswer.belongsTo(User);
 

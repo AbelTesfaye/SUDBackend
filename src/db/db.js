@@ -1,5 +1,5 @@
 const { sequelize } = require('./con');
-const { User, Profile } = require('./models');
+const { User, Profile, enums } = require('./models');
 
 sequelize.authenticate().then(async () => {
 
@@ -9,20 +9,19 @@ sequelize.authenticate().then(async () => {
         await sequelize.sync({ force: true });
         console.log("All models were synchronized successfully.");
 
+        {
+            const u = await User.create({
+                type: enums.User.SYSTEM_ADMIN,
+            })
+            const p = await Profile.create({
+                name: "system admin",
+                email: "systemadmin@gmail.com",
+                password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
+            })
 
-        const u = await User.create({
-            type: "SYSTEM_ADMIN",
-        })
-        const p = await Profile.create({
-            name: "Test",
-            email: "test@gmail.com",
-            password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
-        })
-
-        p.setUser(u);
-
-        await p.save();
-
+            p.setUser(u);
+            await p.save();
+        }
 
     } catch (ex) {
         console.error("unable to sync models:", ex)
