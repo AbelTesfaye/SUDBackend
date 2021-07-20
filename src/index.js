@@ -5,11 +5,13 @@ const { JWT_SECRET } = require('./env/env');
 const { setupRCManagerRoutes } = require('./routes/rcmanager/rcmanager');
 const { setupSystemAdminRoutes } = require('./routes/systemadmin/systemadmin');
 const { sha256 } = require('./utils/utils')
+const cors = require('cors')
 
 const app = express()
 const port = process.env.PORT || 3000
 
 app.use(express.json())
+app.use(cors())
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
