@@ -1,5 +1,5 @@
 const { Profile, User, enums, Event } = require('../../db/models');
-const { sha256 } = require('../../utils/utils')
+const { sha256, isUndefined } = require('../../utils/utils')
 
 const setupRCManagerRoutes = (app) => {
     /**
@@ -13,7 +13,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const [p] = await Profile.findOrCreate({
                 where: {
@@ -39,8 +39,8 @@ const setupRCManagerRoutes = (app) => {
             await u.save();
 
             res.send({
-                profile: p.toJSON(),
-                user: u.toJSON(),
+                profile: p,
+                user: u,
             });
 
         } catch (ex) {
@@ -58,7 +58,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const p = await Profile.findOne({
                 where: {
@@ -73,7 +73,7 @@ const setupRCManagerRoutes = (app) => {
 
             await u.save();
 
-            res.send(u.toJSON());
+            res.send(u);
 
         } catch (ex) {
             console.error(ex)
@@ -90,7 +90,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const p = await Profile.findOne({
                 where: {
@@ -104,7 +104,7 @@ const setupRCManagerRoutes = (app) => {
 
             await p.save();
 
-            res.send(p.toJSON());
+            res.send(p);
 
         } catch (ex) {
             console.error(ex)
@@ -121,7 +121,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const [p] = await Profile.findOrCreate({
                 where: {
@@ -147,8 +147,8 @@ const setupRCManagerRoutes = (app) => {
             await u.save();
 
             res.send({
-                profile: p.toJSON(),
-                user: u.toJSON(),
+                profile: p,
+                user: u,
             });
 
         } catch (ex) {
@@ -166,7 +166,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const p = await Profile.findOne({
                 where: {
@@ -181,7 +181,7 @@ const setupRCManagerRoutes = (app) => {
 
             await u.save();
 
-            res.send(u.toJSON());
+            res.send(u);
 
         } catch (ex) {
             console.error(ex)
@@ -198,7 +198,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const p = await Profile.findOne({
                 where: {
@@ -212,7 +212,7 @@ const setupRCManagerRoutes = (app) => {
 
             await p.save();
 
-            res.send(p.toJSON());
+            res.send(p);
 
         } catch (ex) {
             console.error(ex)
@@ -229,7 +229,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const [p] = await Profile.findOrCreate({
                 where: {
@@ -254,8 +254,8 @@ const setupRCManagerRoutes = (app) => {
             await u.save();
 
             res.send({
-                profile: p.toJSON(),
-                user: u.toJSON(),
+                profile: p,
+                user: u,
             });
 
         } catch (ex) {
@@ -273,7 +273,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const p = await Profile.findOne({
                 where: {
@@ -288,7 +288,7 @@ const setupRCManagerRoutes = (app) => {
 
             await u.save();
 
-            res.send(u.toJSON());
+            res.send(u);
 
         } catch (ex) {
             console.error(ex)
@@ -305,7 +305,7 @@ const setupRCManagerRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.RC_MANAGER) throw Error("you are not an rc manager, you cant access this endpoint");
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
             const p = await Profile.findOne({
                 where: {
@@ -319,7 +319,7 @@ const setupRCManagerRoutes = (app) => {
 
             await p.save();
 
-            res.send(p.toJSON());
+            res.send(p);
 
         } catch (ex) {
             console.error(ex)
@@ -346,7 +346,10 @@ const setupRCManagerRoutes = (app) => {
                 userType !== enums.User.RC_MANAGER
                 && userType !== enums.User.PHYSICIAN
             )
-                throw Error("you are not an rc manager or physician, you cant access this endpoint");
+                throw Error("you don't have the required permission to access this endpoint");
+
+            if (userType === enums.User.PHYSICIAN && isUndefined(supportGroupId))
+                throw Error('supportGroupId is required for physician')
 
             const [e] = await Event.findOrCreate({
                 where: {
@@ -367,13 +370,12 @@ const setupRCManagerRoutes = (app) => {
             e.isActive = isActive
 
             if (userType === enums.User.PHYSICIAN) {
-                if (!supportGroupId) throw Error("supportGroupId is required")
                 e.SupportGroupId = supportGroupId;
             }
 
             await e.save();
 
-            res.send(e.toJSON());
+            res.send(e);
 
         } catch (ex) {
             console.error(ex)
@@ -394,7 +396,7 @@ const setupRCManagerRoutes = (app) => {
             if (
                 userType !== enums.User.RC_MANAGER
             )
-                throw Error("you are not an rc manager, you cant access this endpoint");
+                throw Error("you don't have the required permission to access this endpoint");
 
             const physician = await Profile.findOne({
                 where: {
@@ -415,11 +417,11 @@ const setupRCManagerRoutes = (app) => {
             if (!patient) throw Error('cant find patient with this email')
 
             const pa = patient.User;
-            pa.physicianId = physician.User.id 
+            pa.physicianId = physician.User.id
 
             await pa.save();
 
-            res.send(patient.toJSON());
+            res.send(patient);
 
         } catch (ex) {
             console.error(ex)

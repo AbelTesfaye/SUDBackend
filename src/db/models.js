@@ -36,18 +36,20 @@ const Event = sequelize.define('Event', {
 
 const Task = sequelize.define('Task', {
     name: { type: DataTypes.TEXT, allowNull: false },
-    
+
     isCompleted: { type: DataTypes.BOOLEAN, defaultValue: false },
 });
 
 const SupportGroup = sequelize.define('SupportGroup', {
-    name: { type: DataTypes.STRING, allowNull: false, unique: true },
+    name: { type: DataTypes.STRING, allowNull: false },
     dateCreated: { type: DataTypes.DATE, allowNull: false },
 });
 
 const Message = sequelize.define('Message', {
     content: { type: DataTypes.TEXT, allowNull: false },
     date: { type: DataTypes.DATE, allowNull: false },
+
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
 });
 
 const MoodQuestionAnswer = sequelize.define('MoodQuestionAnswer', {
@@ -73,6 +75,10 @@ const SoberStory = sequelize.define('SoberStory', {
     isApproved: { type: DataTypes.BOOLEAN, defaultValue: false },
 });
 
+const SupportGroupMember = sequelize.define('SupportGroupMember', {
+    isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
+});
+
 
 /*
     Associations
@@ -85,9 +91,12 @@ Event.belongsTo(SupportGroup);
 
 Task.belongsTo(User);
 
-User.belongsTo(SupportGroup);
+SupportGroup.belongsTo(User, { as: 'owner' });
+SupportGroup.belongsToMany(User, { through: SupportGroupMember });
+User.belongsToMany(SupportGroup, { through: SupportGroupMember });
 
 User.belongsTo(User, { as: 'physician' });
+User.belongsTo(User, { as: 'sponsor' });
 
 Message.belongsTo(User, { as: 'from' });
 Message.belongsTo(User, { as: 'toUser' });
@@ -115,4 +124,5 @@ module.exports = {
     MoodQuestionAnswer,
     PhysicianProvidedTherapeuticResource,
     SoberStory,
+    SupportGroupMember,
 }

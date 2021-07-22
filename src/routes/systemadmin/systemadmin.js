@@ -1,5 +1,5 @@
 const { Profile, RC, User, enums } = require('../../db/models');
-const { sha256 } = require('../../utils/utils')
+const { sha256, isUndefined } = require('../../utils/utils')
 
 const setupSystemAdminRoutes = (app) => {
     /**
@@ -16,7 +16,7 @@ const setupSystemAdminRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType != enums.User.SYSTEM_ADMIN) throw Error("you are not a system admin, you cant access this endpoint");
+            if (userType !== enums.User.SYSTEM_ADMIN) throw Error("you don't have the required permission to access this endpoint");
             const [r] = await RC.findOrCreate({
                 where: {
                     name
@@ -46,9 +46,9 @@ const setupSystemAdminRoutes = (app) => {
             await u.save();
 
             res.send({
-                rc: r.toJSON(),
-                profile: p.toJSON(),
-                user: u.toJSON(),
+                rc: r,
+                profile: p,
+                user: u,
             });
 
         } catch (ex) {
@@ -66,8 +66,8 @@ const setupSystemAdminRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType != enums.User.SYSTEM_ADMIN) throw Error("you are not a system admin, you cant access this endpoint");
-            if (typeof rcId === "undefined") throw Error("rcId is empty");
+            if (userType !== enums.User.SYSTEM_ADMIN) throw Error("you don't have the required permission to access this endpoint");
+            if (isUndefined(rcId)) throw Error("rcId is empty");
 
             const u = await User.findOne({
                 where: {
@@ -89,7 +89,7 @@ const setupSystemAdminRoutes = (app) => {
             p.password = sha256("")
             await p.save();
 
-            res.send(p.toJSON());
+            res.send(p);
 
         } catch (ex) {
             console.error(ex)
@@ -106,9 +106,9 @@ const setupSystemAdminRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType != enums.User.SYSTEM_ADMIN) throw Error("you are not a system admin, you cant access this endpoint");
+            if (userType !== enums.User.SYSTEM_ADMIN) throw Error("you don't have the required permission to access this endpoint");
 
-            if (typeof rcId === "undefined") throw Error("rcId is empty");
+            if (isUndefined(rcId)) throw Error("rcId is empty");
 
             const rc = await RC.findOne({
                 where: {
@@ -119,7 +119,7 @@ const setupSystemAdminRoutes = (app) => {
             rc.isActive = !rc.isActive;
             await rc.save();
 
-            res.send(rc.toJSON());
+            res.send(rc);
 
         } catch (ex) {
             console.error(ex)

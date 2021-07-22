@@ -1,11 +1,12 @@
 const express = require('express')
 const jwt = require('jsonwebtoken');
-const { Profile, User, } = require('./db/models');
+const { Profile, User, Message, } = require('./db/models');
 const { JWT_SECRET } = require('./env/env');
+const cors = require('cors');
 const { setupRCManagerRoutes } = require('./routes/rcmanager/rcmanager');
 const { setupSystemAdminRoutes } = require('./routes/systemadmin/systemadmin');
-const { sha256 } = require('./utils/utils')
-const cors = require('cors')
+const { setupPhysicianRoutes } = require('./routes/physician/physician');
+const { sha256, isUndefined } = require('./utils/utils')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -44,7 +45,7 @@ app.post('/login', async (req, res) => {
       expiresIn: 360 * 24 * 60 * 60 /* Expire in 360 days */
     });
 
-    res.send({ token, userInfo: u.toJSON() })
+    res.send({ token, userInfo: u })
 
   } catch (ex) {
     console.error(ex)
@@ -130,7 +131,7 @@ app.post('/profile/update', async (req, res) => {
     await u.save();
     await p.save();
 
-    res.send(p.toJSON());
+    res.send(p);
 
   } catch (ex) {
     console.error(ex)
@@ -140,10 +141,75 @@ app.post('/profile/update', async (req, res) => {
   }
 });
 
+app.post('/messages/create', async (req, res) => {
+  const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+  const {
+    content,
+    toUserId,
+    toSupportGroupId,
+  } = req.body;
+
+  try {
+
+    if (isUndefined(content)) throw Error("content should not be undefined");
+    if (isUndefined(toUserId) && isUndefined(toSupportGroupId)) throw Error("toUserId or toSupportGroupId should be defined");
+
+    const from = await User.findByPk(userId);
+    const m = await Message.create({
+      from,
+      content,
+      date: new Date(),
+    });
+
+    if (!isUndefined(toUserId)) {
+      m.toUserId = toUserId
+    } else {
+      m.toSupportGroupId = toSupportGroupId
+    }
+
+    await m.save();
+
+    res.send(m);
+
+  } catch (ex) {
+    console.error(ex)
+    res.status(500).send({
+      error: ex.message
+    });
+  }
+});
+
+app.post('/messages/toggleActivation', async (req, res) => {
+  const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+  const {
+    messageId,
+  } = req.body;
+
+  try {
+
+    if (isUndefined(messageId)) throw Error("messageId should not be undefined");
+
+    const m = await Message.findByPk(messageId)
+
+    if (!m) throw Error("message couldn't be found")
+
+    m.isActive = !m.isActive;
+
+    await m.save();
+
+    res.send(m);
+
+  } catch (ex) {
+    console.error(ex)
+    res.status(500).send({
+      error: ex.message
+    });
+  }
+});
 
 setupSystemAdminRoutes(app)
 setupRCManagerRoutes(app)
-
+setupPhysicianRoutes(app)
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
