@@ -179,6 +179,139 @@ const setupPhysicianRoutes = (app) => {
             });
         }
     });
+
+    app.post('/supportGroup/toggleModerator', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            uId,
+            supportGroupId
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+
+            if (isUndefined(uId) || isUndefined(supportGroupId))
+                throw Error("uId and supportGroupId must be defined");
+
+            const sgm = await SupportGroupMember.findOne({
+                where: {
+                    UserId: uId,
+                    supportGroupId
+                }
+            });
+            if (!sgm) throw Error("support group member not found");
+
+            sgm.isAdmin = !sgm.isAdmin
+
+            sgm.save();
+
+            res.send(sgm);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/patient/toggleSoberity', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            patientId
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+
+            if (isUndefined(patientId))
+                throw Error("patientId must be defined");
+
+            const p = await User.findByPk(patientId);
+            if (!p) throw Error("could not find patient");
+
+            if (!p.dateLastSober) {
+                p.dateLastSober = new Date()
+                p.type = enums.User.SOBER_PATIENT
+            } else {
+                p.dateLastSober = null
+                p.type = enums.User.ACTIVE_PATIENT
+            }
+
+            await p.save();
+
+            res.send(p);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/patient/linkSponsor', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            sponsorId,
+            patientId
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+
+            if (isUndefined(patientId) || isUndefined(sponsorId))
+                throw Error("patientId and sponsorId must be defined");
+
+            const s = await User.findByPk(sponsorId);
+            if (!s) throw Error("could not find sponsor");
+
+            const p = await User.findByPk(patientId);
+            if (!p) throw Error("could not find patient");
+
+            p.setSponsor(s);
+
+            await p.save();
+
+            res.send(p);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/rc/listSoberPatients', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+
+            const soberPatients = await User.findAll({
+                where: {
+                    type: enums.User.SOBER_PATIENT,
+                    RCId: userRCId
+                }
+            });
+
+            res.send(soberPatients);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
 }
 
 module.exports = {
