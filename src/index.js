@@ -1,15 +1,31 @@
 const express = require('express')
 const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const multer = require('multer')
+const cloudinary = require('cloudinary').v2;
 const { Profile, User, Message, } = require('./db/models');
 const { JWT_SECRET } = require('./env/env');
-const cors = require('cors');
 const { setupRCManagerRoutes } = require('./routes/rcmanager/rcmanager');
 const { setupSystemAdminRoutes } = require('./routes/systemadmin/systemadmin');
 const { setupPhysicianRoutes } = require('./routes/physician/physician');
 const { sha256, isUndefined } = require('./utils/utils')
 
+cloudinary.config({
+  cloud_name: 'dfifwdmr9',
+  api_key: '158848835582553',
+  api_secret: 'mh98mgs9xddxvzZl_Z6OTMzStFk'
+});
+
+const cloudinaryUpload = (fileBuffer) => new Promise((resolve, reject) => {
+  cloudinary.uploader.upload_stream((err, res) => {
+    if (err) reject(err);
+    else resolve(res);
+  }).end(fileBuffer);
+})
+
 const app = express()
 const port = process.env.PORT || 3000
+const upload = multer({})
 
 app.use(express.json())
 app.use(cors())
@@ -206,6 +222,57 @@ app.post('/messages/toggleActivation', async (req, res) => {
     });
   }
 });
+
+app.post('/upload', upload.single('photo'), async (req, res) => {
+  const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+  const {
+    toUserId,
+    toSupportGroupId,
+    setAsProfilePicture,
+  } = req.body;
+  const file = req.file;
+
+  try {
+
+    if (!setAsProfilePicture &&
+      (isUndefined(toSupportGroupId) && isUndefined(toUserId)))
+      throw Error("either toSupportGroupId or toUserId must be defined");
+
+    const uploaded = await cloudinaryUpload(file.buffer);
+    const uploadedUrl = uploaded.secure_url;
+
+    if (setAsProfilePicture) {
+      const p = await Profile.findByPk(profileId);
+      p.profilePictureUrl = uploadedUrl;
+      await p.save();
+
+    } else {
+      const from = await User.findByPk(userId);
+      const m = await Message.create({
+        from,
+        imageUrl: uploadedUrl,
+        content: file.originalname,
+        date: new Date()
+      });
+
+      if (!isUndefined(toUserId)) {
+        m.toUserId = toUserId
+      } else {
+        m.toSupportGroupId = toSupportGroupId
+      }
+
+      await m.save();
+    }
+
+    res.send({ uploadedUrl: uploadedUrl });
+
+  } catch (ex) {
+    console.error(ex)
+    res.status(500).send({
+      error: ex.message
+    });
+  }
+})
 
 setupSystemAdminRoutes(app)
 setupRCManagerRoutes(app)

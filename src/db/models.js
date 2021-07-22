@@ -7,6 +7,7 @@ const Profile = sequelize.define('Profile', {
 
     password: { type: DataTypes.TEXT, defaultValue: "" },
     phoneNumber: { type: DataTypes.TEXT, defaultValue: "" },
+    profilePictureUrl: { type: DataTypes.TEXT, defaultValue: "" },
 });
 
 const RC = sequelize.define('RC', {
@@ -50,6 +51,7 @@ const Message = sequelize.define('Message', {
     date: { type: DataTypes.DATE, allowNull: false },
 
     isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
+    imageUrl: { type: DataTypes.TEXT, defaultValue: true },
 });
 
 const MoodQuestionAnswer = sequelize.define('MoodQuestionAnswer', {
