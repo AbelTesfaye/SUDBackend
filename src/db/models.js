@@ -67,6 +67,7 @@ const PhysicianProvidedTherapeuticResource = sequelize.define('PhysicianProvided
     type: { type: DataTypes.TEXT, allowNull: false },
     url: { type: DataTypes.TEXT, allowNull: false },
 
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
 });
 
 const SoberStory = sequelize.define('SoberStory', {
@@ -80,6 +81,8 @@ const SoberStory = sequelize.define('SoberStory', {
 const SupportGroupMember = sequelize.define('SupportGroupMember', {
     isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
 });
+
+const PhysicianProvidedTherapeuticResourceShare = sequelize.define('PhysicianProvidedTherapeuticResourceShare', {});
 
 
 /*
@@ -106,8 +109,9 @@ Message.belongsTo(SupportGroup, { as: 'toSupportGroup' });
 
 MoodQuestionAnswer.belongsTo(User);
 
-PhysicianProvidedTherapeuticResource.belongsTo(User, { as: 'for' });
-PhysicianProvidedTherapeuticResource.belongsTo(User, { as: 'poster' });
+PhysicianProvidedTherapeuticResource.belongsToMany(User, { through: PhysicianProvidedTherapeuticResourceShare });
+User.belongsToMany(PhysicianProvidedTherapeuticResource, { through: PhysicianProvidedTherapeuticResourceShare });
+
 
 SoberStory.belongsTo(User, { as: 'postedBy' });
 

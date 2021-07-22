@@ -1,4 +1,4 @@
-const { Profile, RC, User, enums, SupportGroup, SupportGroupMember } = require('../../db/models');
+const { Profile, RC, User, enums, SupportGroup, SupportGroupMember, PhysicianProvidedTherapeuticResource } = require('../../db/models');
 const { isUndefined } = require('../../utils/utils');
 
 const setupPhysicianRoutes = (app) => {
@@ -303,6 +303,86 @@ const setupPhysicianRoutes = (app) => {
             });
 
             res.send(soberPatients);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/therapeuticDocuments/createOrUpdate', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            id = "",
+            title,
+            type,
+            url,
+            isActive = true,
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+
+            if (Object.keys(enums.PhysicianProvidedTherapeuticResource).indexOf(type) === -1)
+                throw Error(`type must be one of: ${Object.keys(enums.PhysicianProvidedTherapeuticResource)}`)
+
+            if (!title || !url)
+                throw Error('title and url must have content')
+
+            const [t] = await PhysicianProvidedTherapeuticResource.findOrCreate({
+                where: {
+                    id,
+                },
+                defaults: {
+                    title,
+                    datePosted: new Date(),
+                    type,
+                    url,
+                }
+            });
+
+            t.isActive = isActive;
+            t.title = title;
+            t.url = url;
+            await t.save();
+
+            res.send(t);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/therapeuticDocuments/share', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            therapeuticDocumentId,
+            shareToUserId
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+
+            if (!therapeuticDocumentId || !shareToUserId)
+                throw Error('therapeuticDocumentId and shareToUserId must be defined')
+
+            const t = await PhysicianProvidedTherapeuticResource.findByPk(therapeuticDocumentId);
+            if (!t) throw Error("could not find the therapeutic resource")
+
+            const u = await User.findByPk(shareToUserId);
+            if (!u) throw Error("could not find the user")
+
+            const added = await t.addUser(u);
+            if (!added) throw Error("could not add")
+
+            res.send(added);
 
         } catch (ex) {
             console.error(ex)
