@@ -6,7 +6,6 @@ sequelize.authenticate().then(async () => {
     console.log('Connection has been established successfully.');
 
     try {
-        await sequelize.drop();
         await sequelize.sync({ force: true });
         console.log("All models were synchronized successfully.");
 
