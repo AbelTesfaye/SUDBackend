@@ -229,20 +229,42 @@ const setupPhysicianRoutes = (app) => {
             if (isUndefined(patientId))
                 throw Error("patientId must be defined");
 
-            const p = await User.findByPk(patientId);
-            if (!p) throw Error("could not find patient");
+            const u = await User.findByPk(patientId);
+            if (!u) throw Error("could not find patient");
 
-            if (!p.dateLastSober) {
-                p.dateLastSober = new Date()
-                p.type = enums.User.SOBER_PATIENT
+            if (u.type === enums.User.ACTIVE_PATIENT) {
+                u.dateLastSober = new Date()
+                u.type = enums.User.SOBER_PATIENT
             } else {
-                p.dateLastSober = null
-                p.type = enums.User.ACTIVE_PATIENT
+                u.dateLastSober = null
+                u.type = enums.User.ACTIVE_PATIENT
+
+                const sgm = await SupportGroupMember.findAll({
+                    where: {
+                        UserId: patientId
+                    }
+                })
+
+                for (const ss of sgm) {
+                    ss.isAdmin = false;
+                    await ss.save();
+                }
+
+                const sp = await User.findAll({
+                    where: {
+                        sponsorId: patientId
+                    }
+                })
+
+                for (const ss of sp) {
+                    ss.sponsorId = null;
+                    await ss.save();
+                }
             }
 
-            await p.save();
+            await u.save();
 
-            res.send(p);
+            res.send(u);
 
         } catch (ex) {
             console.error(ex)
@@ -273,6 +295,40 @@ const setupPhysicianRoutes = (app) => {
             if (!p) throw Error("could not find patient");
 
             p.setSponsor(s);
+
+            await p.save();
+
+            res.send(p);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/patient/linkCaretaker', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            caretakerId,
+            patientId
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
+
+            if (isUndefined(patientId) || isUndefined(caretakerId))
+                throw Error("patientId and caretakerId must be defined");
+
+            const c = await User.findByPk(caretakerId);
+            if (!c) throw Error("could not find caretaker");
+
+            const p = await User.findByPk(patientId);
+            if (!p) throw Error("could not find patient");
+
+            p.setCaretaker(c);
 
             await p.save();
 

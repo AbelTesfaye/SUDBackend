@@ -1,4 +1,4 @@
-const { Profile, User, enums, Event } = require('../../db/models');
+const { Profile, User, enums, Event, SoberStory } = require('../../db/models');
 const { sha256, isUndefined } = require('../../utils/utils')
 
 const setupRCManagerRoutes = (app) => {
@@ -359,7 +359,8 @@ const setupRCManagerRoutes = (app) => {
                     name,
                     description,
                     startTime,
-                    endTime
+                    endTime,
+                    RCId: userRCId,
                 }
             })
 
@@ -368,6 +369,7 @@ const setupRCManagerRoutes = (app) => {
             e.startTime = startTime
             e.endTime = endTime
             e.isActive = isActive
+            e.RCId = userRCId
 
             if (userType === enums.User.PHYSICIAN) {
                 e.SupportGroupId = supportGroupId;
@@ -422,6 +424,33 @@ const setupRCManagerRoutes = (app) => {
             await pa.save();
 
             res.send(patient);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/soberStories/toggleApproval', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+        const {
+            id = "",
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
+
+            const ss = await SoberStory.findByPk(id);
+
+            if (!ss) throw Error("could not find this sober story")
+
+            ss.isApproved = !ss.isApproved;
+
+            await ss.save()
+
+            res.send(ss);
 
         } catch (ex) {
             console.error(ex)

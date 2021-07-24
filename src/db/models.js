@@ -23,7 +23,8 @@ const User = sequelize.define('User', {
     wantsToSponsor: { type: DataTypes.BOOLEAN, defaultValue: false },
     isPublic: { type: DataTypes.BOOLEAN, defaultValue: false },
     dateLastSober: { type: DataTypes.DATE },
-    lastKnownLocation: { type: DataTypes.TEXT, defaultValue: "" },
+    lat: { type: DataTypes.DOUBLE, defaultValue: 0 },
+    long: { type: DataTypes.DOUBLE, defaultValue: 0 },
 });
 
 const Event = sequelize.define('Event', {
@@ -37,6 +38,7 @@ const Event = sequelize.define('Event', {
 
 const Task = sequelize.define('Task', {
     name: { type: DataTypes.TEXT, allowNull: false },
+    dateCreated: { type: DataTypes.DATE, allowNull: false },
 
     isCompleted: { type: DataTypes.BOOLEAN, defaultValue: false },
 });
@@ -44,6 +46,7 @@ const Task = sequelize.define('Task', {
 const SupportGroup = sequelize.define('SupportGroup', {
     name: { type: DataTypes.STRING, allowNull: false },
     dateCreated: { type: DataTypes.DATE, allowNull: false },
+
 });
 
 const Message = sequelize.define('Message', {
@@ -76,6 +79,7 @@ const SoberStory = sequelize.define('SoberStory', {
     datePosted: { type: DataTypes.DATE, allowNull: false },
 
     isApproved: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isActive: { type: DataTypes.BOOLEAN, defaultValue: true },
 });
 
 const SupportGroupMember = sequelize.define('SupportGroupMember', {
@@ -91,8 +95,10 @@ const PhysicianProvidedTherapeuticResourceShare = sequelize.define('PhysicianPro
 Profile.belongsTo(User);
 
 User.belongsTo(RC);
+User.belongsTo(User, { as: 'caretaker' });
 
 Event.belongsTo(SupportGroup);
+Event.belongsTo(RC);
 
 Task.belongsTo(User);
 
@@ -114,6 +120,7 @@ User.belongsToMany(PhysicianProvidedTherapeuticResource, { through: PhysicianPro
 
 
 SoberStory.belongsTo(User, { as: 'postedBy' });
+SoberStory.belongsTo(RC);
 
 module.exports = {
     enums: {
@@ -131,4 +138,5 @@ module.exports = {
     PhysicianProvidedTherapeuticResource,
     SoberStory,
     SupportGroupMember,
+    PhysicianProvidedTherapeuticResourceShare,
 }

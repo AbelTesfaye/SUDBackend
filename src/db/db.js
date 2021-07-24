@@ -101,6 +101,24 @@ sequelize.authenticate().then(async () => {
             await p.save();
         }
 
+        {
+            const u = await User.create({
+                type: enums.User.CARETAKER,
+            })
+
+            u.setRC(rc);
+
+            const p = await Profile.create({
+                name: "care taker",
+                email: "caretaker@gmail.com",
+                password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
+            })
+
+            p.setUser(u);
+
+            await p.save();
+        }
+
     } catch (ex) {
         console.error("unable to sync models:", ex)
         throw Error(ex)

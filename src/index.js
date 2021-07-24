@@ -3,12 +3,15 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const multer = require('multer')
 const cloudinary = require('cloudinary').v2;
-const { Profile, User, Message, } = require('./db/models');
+const { Profile, User, Message, enums, SupportGroupMember, } = require('./db/models');
 const { JWT_SECRET } = require('./env/env');
 const { setupRCManagerRoutes } = require('./routes/rcmanager/rcmanager');
 const { setupSystemAdminRoutes } = require('./routes/systemadmin/systemadmin');
 const { setupPhysicianRoutes } = require('./routes/physician/physician');
-const { sha256, isUndefined } = require('./utils/utils')
+const { sha256, isUndefined } = require('./utils/utils');
+const { setupActivePatientRoutes } = require('./routes/activepatient/activepatient');
+const { setupSoberPatientRoutes } = require('./routes/soberpatient/soberpatient');
+const { setupCareTakerRoutes } = require('./routes/caretaker/caretaker');
 
 cloudinary.config({
   cloud_name: 'dfifwdmr9',
@@ -147,7 +150,10 @@ app.post('/profile/update', async (req, res) => {
     await u.save();
     await p.save();
 
-    res.send(p);
+    res.send({
+      profile: p,
+      user: u
+    });
 
   } catch (ex) {
     console.error(ex)
@@ -208,6 +214,19 @@ app.post('/messages/toggleActivation', async (req, res) => {
     const m = await Message.findByPk(messageId)
 
     if (!m) throw Error("message couldn't be found")
+
+    if (m.toSupportGroupId !== null) {
+      const supportGroupAdmin = await SupportGroupMember.findOne({
+        where: {
+          UserId: userId,
+          SupportGroupId: m.toSupportGroupId,
+          isAdmin: true
+        }
+      })
+
+      if (!supportGroupAdmin)
+        throw Error("You don't have admin permissions in this support group");
+    }
 
     m.isActive = !m.isActive;
 
@@ -277,6 +296,9 @@ app.post('/upload', upload.single('photo'), async (req, res) => {
 setupSystemAdminRoutes(app)
 setupRCManagerRoutes(app)
 setupPhysicianRoutes(app)
+setupActivePatientRoutes(app)
+setupSoberPatientRoutes(app)
+setupCareTakerRoutes(app)
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
