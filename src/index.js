@@ -12,6 +12,7 @@ const { sha256, isUndefined } = require('./utils/utils');
 const { setupActivePatientRoutes } = require('./routes/activepatient/activepatient');
 const { setupSoberPatientRoutes } = require('./routes/soberpatient/soberpatient');
 const { setupCareTakerRoutes } = require('./routes/caretaker/caretaker');
+const { iLIKE } = require('./db/con');
 
 cloudinary.config({
   cloud_name: 'dfifwdmr9',
@@ -44,7 +45,7 @@ app.post('/login', async (req, res) => {
   try {
     const p = await Profile.findOne({
       where: {
-        email,
+        email: iLIKE('email', email),
         password: hashedPassword
       }
     });

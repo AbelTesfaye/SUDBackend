@@ -18,4 +18,8 @@ if (CONNECTION_STRING.trim().startsWith('postgres')) {
 
 const sequelize = new Sequelize(CONNECTION_STRING, options)
 
-module.exports = { sequelize }
+const iLIKE = (colName, lookupValue) => {
+    return sequelize.where(sequelize.fn('LOWER', sequelize.col(colName)), 'LIKE', lookupValue.toLowerCase())
+}
+
+module.exports = { sequelize, iLIKE }
