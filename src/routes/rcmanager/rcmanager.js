@@ -114,7 +114,7 @@ const setupRCManagerRoutes = (app) => {
         }
     });
 
-    app.post('/physician/list', async (req, res) => {
+    app.get('/physician', async (req, res) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
         const {
         } = req.body;
