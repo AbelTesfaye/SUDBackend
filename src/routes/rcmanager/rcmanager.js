@@ -124,6 +124,7 @@ const setupRCManagerRoutes = (app) => {
 
             const users = await User.findAll({
                 where: {
+                    RCId: userRCId,
                     type: enums.User.PHYSICIAN,
                 },
             });
