@@ -177,11 +177,11 @@ app.post('/messages/create', async (req, res) => {
     if (isUndefined(content)) throw Error("content should not be undefined");
     if (isUndefined(toUserId) && isUndefined(toSupportGroupId)) throw Error("toUserId or toSupportGroupId should be defined");
 
-    const from = await User.findByPk(userId);
     const m = await Message.create({
-      from,
+      fromId: userId,
       content,
       date: new Date(),
+      imageUrl: ""
     });
 
     if (!isUndefined(toUserId)) {
@@ -234,6 +234,84 @@ app.post('/messages/toggleActivation', async (req, res) => {
     await m.save();
 
     res.send(m);
+
+  } catch (ex) {
+    console.error(ex)
+    res.status(500).send({
+      error: ex.message
+    });
+  }
+});
+
+
+app.post('/messages/listAvailable', async (req, res) => {
+  const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+  const {
+  } = req.body;
+
+  try {
+    let allAvailable = [];
+
+    if (userType === enums.User.PHYSICIAN) {
+      // get all users linked to this physician and their caretakers too
+      const u = await User.findAll({
+        where: {
+          physicianId: userId
+        },
+        include: Profile
+      });
+
+      for (const a of u) {
+        allAvailable.push(a.toJSON())
+      }
+
+      const caretakers = []
+      for (const a of u) {
+        if (a.caretakerId) {
+          a.caretaker = (await User.findByPk(a.caretakerId, { include: Profile })).toJSON()
+          caretakers.push(a.caretaker)
+        }
+      }
+      allAvailable = [...allAvailable, ...caretakers]
+    }
+
+    for (const a of allAvailable) {
+      const lastMessageR = await Message.findOne({
+        where: {
+          fromId: a.id,
+          toUserId: userId,
+          isActive: true,
+        },
+        order: [['date', 'DESC']],
+      });
+
+      const lastMessageS = await Message.findOne({
+        where: {
+          fromId: userId,
+          toUserId: a.id,
+          isActive: true,
+        },
+        order: [['date', 'DESC']],
+      });
+
+      if (lastMessageR || lastMessageS) console.log("found")
+
+      a.lastMessage = {}
+      if (lastMessageR) {
+        a.lastMessage = lastMessageR.toJSON();
+      }
+
+      if (lastMessageS) {
+        const sj = lastMessageS.toJSON();
+        if (!lastMessageR) a.lastMessage = sj
+
+        if (sj.date > a.lastMessage.date) {
+          a.lastMessage = sj
+        }
+      }
+    }
+
+    res.send(allAvailable);
 
   } catch (ex) {
     console.error(ex)
