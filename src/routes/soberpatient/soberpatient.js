@@ -11,7 +11,7 @@ const setupSoberPatientRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
-            id = "",
+            id = -1,
             isAnonymous = false,
             title,
             content,

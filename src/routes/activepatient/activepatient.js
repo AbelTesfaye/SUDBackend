@@ -11,7 +11,7 @@ const setupActivePatientRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
-            id = "",
+            id = -1,
             name,
             isCompleted,
             dateCreated = new Date()
@@ -48,7 +48,7 @@ const setupActivePatientRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
-            id = "",
+            id = -1,
         } = req.body;
 
         try {
@@ -73,7 +73,7 @@ const setupActivePatientRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
-            id = "",
+            id = -1,
         } = req.body;
 
         try {
@@ -178,7 +178,7 @@ const setupActivePatientRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
-            id = ""
+            id = -1
         } = req.body;
 
         try {

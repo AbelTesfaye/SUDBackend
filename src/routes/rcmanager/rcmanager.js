@@ -369,7 +369,7 @@ const setupRCManagerRoutes = (app) => {
     app.post('/events/createOrUpdate', async (req, res) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
         const {
-            id = "",
+            id = -1,
             supportGroupId,
             name,
             description = "",
@@ -473,7 +473,7 @@ const setupRCManagerRoutes = (app) => {
     app.post('/soberStories/toggleApproval', async (req, res) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
         const {
-            id = "",
+            id = -1,
         } = req.body;
 
         try {

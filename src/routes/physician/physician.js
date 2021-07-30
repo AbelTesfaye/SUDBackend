@@ -372,7 +372,7 @@ const setupPhysicianRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
-            id = "",
+            id = -1,
             title,
             type,
             url,
