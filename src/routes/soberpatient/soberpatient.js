@@ -25,6 +25,7 @@ const setupSoberPatientRoutes = (app) => {
                 where: {
                     id,
                 }, defaults: {
+                    id: null,
                     title,
                     content,
                     datePosted

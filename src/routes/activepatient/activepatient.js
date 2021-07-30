@@ -23,6 +23,7 @@ const setupActivePatientRoutes = (app) => {
                 where: {
                     id
                 }, defaults: {
+                    id: null,
                     name,
                     isCompleted,
                     UserId: userId,

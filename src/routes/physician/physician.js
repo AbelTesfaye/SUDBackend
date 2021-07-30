@@ -393,6 +393,7 @@ const setupPhysicianRoutes = (app) => {
                     id,
                 },
                 defaults: {
+                    id: null,
                     title,
                     datePosted: new Date(),
                     type,

@@ -393,6 +393,7 @@ const setupRCManagerRoutes = (app) => {
                     id,
                 },
                 defaults: {
+                    id: null,
                     name,
                     description,
                     startTime,
