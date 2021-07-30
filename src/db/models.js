@@ -92,6 +92,7 @@ const PhysicianProvidedTherapeuticResourceShare = sequelize.define('PhysicianPro
 /*
     Associations
 */
+User.hasOne(Profile);
 Profile.belongsTo(User);
 
 User.belongsTo(RC);

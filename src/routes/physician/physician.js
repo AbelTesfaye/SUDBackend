@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { Profile, RC, User, enums, SupportGroup, SupportGroupMember, PhysicianProvidedTherapeuticResource } = require('../../db/models');
 const { isUndefined } = require('../../utils/utils');
 
@@ -331,6 +332,51 @@ const setupPhysicianRoutes = (app) => {
             p.setCaretaker(c);
 
             await p.save();
+
+            res.send(p);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/patient/list', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN && userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
+            let p = [];
+
+            if (userType === enums.User.RC_MANAGER) {
+                p = await User.findAll({
+                    where: {
+                        RCId: userRCId,
+                        [Op.or]: [
+                            { type: enums.User.SOBER_PATIENT },
+                            { type: enums.User.ACTIVE_PATIENT },
+                        ]
+                    },
+                    include: Profile
+                })
+            } else {
+                p = await User.findAll({
+                    where: {
+                        physicianId: userId,
+                        [Op.or]: [
+                            { type: enums.User.SOBER_PATIENT },
+                            { type: enums.User.ACTIVE_PATIENT },
+                        ]
+                    },
+                    include: Profile
+                })
+            }
+
 
             res.send(p);
 
