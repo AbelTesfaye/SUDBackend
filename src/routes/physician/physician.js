@@ -397,6 +397,7 @@ const setupPhysicianRoutes = (app) => {
                     datePosted: new Date(),
                     type,
                     url,
+                    ownerId: userId
                 }
             });
 

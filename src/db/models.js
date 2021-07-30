@@ -115,6 +115,7 @@ Message.belongsTo(SupportGroup, { as: 'toSupportGroup' });
 
 MoodQuestionAnswer.belongsTo(User);
 
+PhysicianProvidedTherapeuticResource.belongsTo(User, { as: 'owner' });
 PhysicianProvidedTherapeuticResource.belongsToMany(User, { through: PhysicianProvidedTherapeuticResourceShare });
 User.belongsToMany(PhysicianProvidedTherapeuticResource, { through: PhysicianProvidedTherapeuticResourceShare });
 

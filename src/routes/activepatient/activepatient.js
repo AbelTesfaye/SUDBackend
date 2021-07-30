@@ -109,19 +109,30 @@ const setupActivePatientRoutes = (app) => {
         }
     });
 
-    app.post('/therapeuticdocuments/list', async (req, res) => {
+    app.post('/therapeuticDocuments/list', async (req, res) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
         } = req.body;
 
         try {
-            if (userType !== enums.User.ACTIVE_PATIENT) throw Error("you don't have the required permission to access this endpoint");
+            if (userType !== enums.User.ACTIVE_PATIENT && userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
             const u = await User.findByPk(userId)
 
             if (!u) throw Error("could not find user")
 
-            const r = await u.getPhysicianProvidedTherapeuticResources()
+
+            let r = [];
+
+            if (userType === enums.User.ACTIVE_PATIENT) {
+                r = await u.getPhysicianProvidedTherapeuticResources()
+            } else {
+                r = await PhysicianProvidedTherapeuticResource.findAll({
+                    where: {
+                        ownerId: userId
+                    }
+                })
+            }
 
             res.send(r);
 
