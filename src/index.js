@@ -321,6 +321,41 @@ app.post('/messages/listAvailable', async (req, res) => {
   }
 });
 
+app.post('/messages/listThread', async (req, res) => {
+  const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+  const {
+    withUserId
+  } = req.body;
+
+  try {
+    const lastMessagesR = await Message.findAll({
+      where: {
+        fromId: withUserId,
+        toUserId: userId,
+        isActive: true,
+      },
+      order: [['date', 'DESC']],
+    });
+
+    const lastMessagesS = await Message.findAll({
+      where: {
+        fromId: userId,
+        toUserId: withUserId,
+        isActive: true,
+      },
+      order: [['date', 'DESC']],
+    });
+
+    res.send([...lastMessagesR, ...lastMessagesS]);
+
+  } catch (ex) {
+    console.error(ex)
+    res.status(500).send({
+      error: ex.message
+    });
+  }
+});
+
 app.post('/upload', upload.single('photo'), async (req, res) => {
   const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
   const {
