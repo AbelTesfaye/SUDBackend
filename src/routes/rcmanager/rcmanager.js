@@ -130,10 +130,10 @@ const setupRCManagerRoutes = (app) => {
             });
 
             const userProfiles = []
-            for(const u of users){
+            for (const u of users) {
                 const uu = u.toJSON()
                 const p = await Profile.findOne({
-                    where:{
+                    where: {
                         UserId: u.id
                     }
                 })

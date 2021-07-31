@@ -165,6 +165,28 @@ app.post('/profile/update', async (req, res) => {
   }
 });
 
+app.get('/profile/:userId', async (req, res) => {
+  const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+  const {
+  } = req.body;
+
+  try {
+    const uId = req.params.userId
+    const u = await User.findByPk(uId, { include: [Profile] });
+
+    if (!u) throw Error("user doesn't exist")
+    res.send({
+      user: u
+    });
+
+  } catch (ex) {
+    console.error(ex)
+    res.status(500).send({
+      error: ex.message
+    });
+  }
+});
+
 app.post('/messages/create', async (req, res) => {
   const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
   const {
