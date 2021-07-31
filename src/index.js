@@ -1,5 +1,6 @@
 const express = require('express')
 const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
 const cors = require('cors');
 const multer = require('multer')
 const cloudinary = require('cloudinary').v2;
@@ -328,25 +329,17 @@ app.post('/messages/listThread', async (req, res) => {
   } = req.body;
 
   try {
-    const lastMessagesR = await Message.findAll({
+    const lastMessages = await Message.findAll({
       where: {
-        fromId: withUserId,
-        toUserId: userId,
+        [Op.or]: [
+          { fromId: withUserId, toUserId: userId },
+          { fromId: userId, toUserId: withUserId },
+        ],
         isActive: true,
       },
-      order: [['date', 'DESC']],
     });
 
-    const lastMessagesS = await Message.findAll({
-      where: {
-        fromId: userId,
-        toUserId: withUserId,
-        isActive: true,
-      },
-      order: [['date', 'DESC']],
-    });
-
-    res.send([...lastMessagesR, ...lastMessagesS]);
+    res.send(lastMessages);
 
   } catch (ex) {
     console.error(ex)
