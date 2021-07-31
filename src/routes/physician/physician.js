@@ -113,6 +113,62 @@ const setupPhysicianRoutes = (app) => {
         }
     });
 
+    app.post('/supportGroup/listUsers', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            supportGroupId
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+            const s = await SupportGroup.findByPk(supportGroupId)
+            if (!s) throw Error('could not find support group')
+
+            const m = await s.getUsers({ include: [Profile] });
+
+            res.send(m);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/supportGroup/listModeratorUsers', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            supportGroupId
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+            const s = await SupportGroup.findByPk(supportGroupId)
+            if (!s) throw Error('could not find support group')
+
+            const m = await s.getUsers({
+                through: {
+                    where: {
+                        isAdmin: true,
+                    },
+                },
+
+                include: [Profile]
+            });
+
+            res.send(m);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
     app.post('/supportGroup/addUser', async (req, res) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
@@ -198,7 +254,7 @@ const setupPhysicianRoutes = (app) => {
             const sgm = await SupportGroupMember.findOne({
                 where: {
                     UserId: uId,
-                    supportGroupId
+                    SupportGroupId: supportGroupId
                 }
             });
             if (!sgm) throw Error("support group member not found");
@@ -208,6 +264,29 @@ const setupPhysicianRoutes = (app) => {
             sgm.save();
 
             res.send(sgm);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/supportGroup/details', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            supportGroupId
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
+            const s = await SupportGroup.findByPk(supportGroupId)
+            
+            if (!s) throw Error('support group not found')
+
+            res.send(s);
 
         } catch (ex) {
             console.error(ex)
