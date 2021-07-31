@@ -380,9 +380,8 @@ app.post('/upload', upload.single('photo'), async (req, res) => {
       await p.save();
 
     } else {
-      const from = await User.findByPk(userId);
       const m = await Message.create({
-        from,
+        fromId: userId,
         imageUrl: uploadedUrl,
         content: file.originalname,
         date: new Date()
