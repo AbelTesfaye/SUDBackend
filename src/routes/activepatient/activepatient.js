@@ -272,6 +272,28 @@ const setupActivePatientRoutes = (app) => {
         }
     });
 
+    app.post('/events/info', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            id
+        } = req.body;
+
+        try {
+            const e = await Event.findByPk(id)
+
+            if(!e) throw Error('event not found')
+            
+            res.send(e);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
     app.post('/soberStories/list', async (req, res) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
