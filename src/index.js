@@ -172,7 +172,13 @@ app.get('/profile/:userId', async (req, res) => {
 
   try {
     const uId = req.params.userId
-    const u = await User.findByPk(uId, { include: [Profile] });
+    const u = await User.findByPk(uId, {
+      include: [Profile,
+        { model: User, as: 'sponsor', include: [Profile] },
+        { model: User, as: 'physician', include: [Profile] },
+        { model: User, as: 'caretaker', include: [Profile] },
+      ]
+    });
 
     if (!u) throw Error("user doesn't exist")
     res.send({
