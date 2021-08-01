@@ -283,7 +283,7 @@ const setupPhysicianRoutes = (app) => {
         try {
             if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
             const s = await SupportGroup.findByPk(supportGroupId)
-            
+
             if (!s) throw Error('support group not found')
 
             res.send(s);
@@ -426,20 +426,24 @@ const setupPhysicianRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
+            showSober = true,
+            showActive = true,
         } = req.body;
 
         try {
             if (userType !== enums.User.PHYSICIAN && userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
             let p = [];
 
+            const filter = []
+
+            if (showSober) filter.push({ type: enums.User.SOBER_PATIENT })
+            if (showActive) filter.push({ type: enums.User.ACTIVE_PATIENT })
+
             if (userType === enums.User.RC_MANAGER) {
                 p = await User.findAll({
                     where: {
                         RCId: userRCId,
-                        [Op.or]: [
-                            { type: enums.User.SOBER_PATIENT },
-                            { type: enums.User.ACTIVE_PATIENT },
-                        ]
+                        [Op.or]: filter
                     },
                     include: Profile
                 })
@@ -447,10 +451,7 @@ const setupPhysicianRoutes = (app) => {
                 p = await User.findAll({
                     where: {
                         physicianId: userId,
-                        [Op.or]: [
-                            { type: enums.User.SOBER_PATIENT },
-                            { type: enums.User.ACTIVE_PATIENT },
-                        ]
+                        [Op.or]: filter
                     },
                     include: Profile
                 })
