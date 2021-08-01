@@ -347,7 +347,8 @@ app.post('/messages/listAvailable', async (req, res) => {
 app.post('/messages/listThread', async (req, res) => {
   const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
   const {
-    withUserId
+    withUserId = -1,
+    withSupportGroupId = -1
   } = req.body;
 
   try {
@@ -356,6 +357,7 @@ app.post('/messages/listThread', async (req, res) => {
         [Op.or]: [
           { fromId: withUserId, toUserId: userId },
           { fromId: userId, toUserId: withUserId },
+          { toSupportGroupId: withSupportGroupId },
         ],
         isActive: true,
       },
