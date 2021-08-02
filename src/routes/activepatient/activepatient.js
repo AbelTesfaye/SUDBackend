@@ -272,6 +272,32 @@ const setupActivePatientRoutes = (app) => {
         }
     });
 
+    app.post('/events/listForSupportGroup', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            supportGroupId
+        } = req.body;
+
+        try {
+
+            const e = await Event.findAll({
+                where: {
+                    RCId: userRCId,
+                    SupportGroupId: supportGroupId,
+                }
+            });
+
+            res.send(e);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
     app.post('/events/info', async (req, res) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
@@ -282,8 +308,8 @@ const setupActivePatientRoutes = (app) => {
         try {
             const e = await Event.findByPk(id)
 
-            if(!e) throw Error('event not found')
-            
+            if (!e) throw Error('event not found')
+
             res.send(e);
 
         } catch (ex) {
