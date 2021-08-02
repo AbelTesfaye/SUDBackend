@@ -472,6 +472,7 @@ const setupPhysicianRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
+            wantsToSponsor = true,
         } = req.body;
 
         try {
@@ -480,6 +481,7 @@ const setupPhysicianRoutes = (app) => {
             const soberPatients = await User.findAll({
                 where: {
                     type: enums.User.SOBER_PATIENT,
+                    wantsToSponsor,
                     RCId: userRCId
                 }
             });
