@@ -103,7 +103,13 @@ app.post('/me', async (req, res) => {
   const { userId, profileId, userRCId, userType } = req.decodedJwtObj;
   try {
 
-    const u = await User.findByPk(userId)
+    const u = await User.findByPk(userId, {
+      include: [
+        { model: User, as: 'sponsor', include: [Profile] },
+        { model: User, as: 'physician', include: [Profile] },
+        { model: User, as: 'caretaker', include: [Profile] },
+      ]
+    })
     const p = await Profile.findByPk(profileId)
 
     res.send({
