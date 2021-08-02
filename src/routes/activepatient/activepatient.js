@@ -327,11 +327,39 @@ const setupActivePatientRoutes = (app) => {
         } = req.body;
 
         try {
+            const filterObj = {
+                RCId: userRCId
+            };
+
+            if(userType === enums.User.SOBER_PATIENT){
+                filterObj['postedById'] = userId
+            }
+
             const s = await SoberStory.findAll({
-                where: {
-                    RCId: userRCId
-                }
+                where: filterObj
             })
+
+            res.send(s);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
+
+    app.post('/soberStories/details', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+            id
+        } = req.body;
+
+        try {
+            const s = await SoberStory.findByPk(id)
+
+            if(!s) throw Error('cant find sober story')
 
             res.send(s);
 
