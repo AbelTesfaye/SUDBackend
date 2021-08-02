@@ -319,12 +319,19 @@ app.post('/messages/listAvailable', async (req, res) => {
         ]
       });
 
+      const s = await User.findOne({
+        where: {
+          sponsorId: userId,
+        },
+        include: [Profile]
+      })
+
       const spg = await u.getSupportGroups()
       if (spg.length !== 0) {
         allAvailable.push({ isSupportGroup: true, ...spg[0].toJSON() })
       }
 
-      if (u.sponsor) allAvailable.push(u.sponsor.toJSON())
+      if (s) allAvailable.push(s.toJSON())
       if (u.physician) allAvailable.push(u.physician.toJSON())
     }
 
