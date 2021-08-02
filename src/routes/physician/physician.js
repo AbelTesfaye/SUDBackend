@@ -145,7 +145,6 @@ const setupPhysicianRoutes = (app) => {
         } = req.body;
 
         try {
-            if (userType !== enums.User.PHYSICIAN) throw Error("you don't have the required permission to access this endpoint");
             const s = await SupportGroup.findByPk(supportGroupId)
             if (!s) throw Error('could not find support group')
 
