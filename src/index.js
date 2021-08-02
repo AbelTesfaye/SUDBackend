@@ -308,42 +308,68 @@ app.post('/messages/listAvailable', async (req, res) => {
         }
       }
       allAvailable = [...allAvailable, ...caretakers]
-    }
 
-    for (const a of allAvailable) {
-      const lastMessageR = await Message.findOne({
-        where: {
-          fromId: a.id,
-          toUserId: userId,
-          isActive: true,
-        },
-        order: [['date', 'DESC']],
-      });
 
-      const lastMessageS = await Message.findOne({
-        where: {
-          fromId: userId,
-          toUserId: a.id,
-          isActive: true,
-        },
-        order: [['date', 'DESC']],
-      });
+      for (const a of allAvailable) {
+        const lastMessageR = await Message.findOne({
+          where: {
+            fromId: a.id,
+            toUserId: userId,
+            isActive: true,
+          },
+          order: [['date', 'DESC']],
+        });
 
-      if (lastMessageR || lastMessageS) console.log("found")
+        const lastMessageS = await Message.findOne({
+          where: {
+            fromId: userId,
+            toUserId: a.id,
+            isActive: true,
+          },
+          order: [['date', 'DESC']],
+        });
 
-      a.lastMessage = {}
-      if (lastMessageR) {
-        a.lastMessage = lastMessageR.toJSON();
-      }
+        if (lastMessageR || lastMessageS) console.log("found")
 
-      if (lastMessageS) {
-        const sj = lastMessageS.toJSON();
-        if (!lastMessageR) a.lastMessage = sj
+        a.lastMessage = {}
+        if (lastMessageR) {
+          a.lastMessage = lastMessageR.toJSON();
+        }
 
-        if (sj.date > a.lastMessage.date) {
-          a.lastMessage = sj
+        if (lastMessageS) {
+          const sj = lastMessageS.toJSON();
+          if (!lastMessageR) a.lastMessage = sj
+
+          if (sj.date > a.lastMessage.date) {
+            a.lastMessage = sj
+          }
         }
       }
+    }
+
+    if (userType === enums.User.SOBER_PATIENT) {
+      const u = await User.findByPk(userId, {
+        include: [
+          { model: User, as: 'sponsor', include: [Profile] },
+          { model: User, as: 'physician', include: [Profile] },
+          { model: User, as: 'caretaker', include: [Profile] },
+        ]
+      });
+
+      const s = await User.findOne({
+        where: {
+          sponsorId: userId,
+        },
+        include: [Profile]
+      })
+
+      const spg = await u.getSupportGroups()
+      if (spg.length !== 0) {
+        allAvailable.push({ isSupportGroup: true, ...spg[0].toJSON() })
+      }
+      if (s) allAvailable.push(s)
+      if (u.sponsor) allAvailable.push(u.sponsor)
+      if (u.physician) allAvailable.push(u.physician)
     }
 
     res.send(allAvailable);
