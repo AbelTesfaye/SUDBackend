@@ -308,43 +308,6 @@ app.post('/messages/listAvailable', async (req, res) => {
         }
       }
       allAvailable = [...allAvailable, ...caretakers]
-
-
-      for (const a of allAvailable) {
-        const lastMessageR = await Message.findOne({
-          where: {
-            fromId: a.id,
-            toUserId: userId,
-            isActive: true,
-          },
-          order: [['date', 'DESC']],
-        });
-
-        const lastMessageS = await Message.findOne({
-          where: {
-            fromId: userId,
-            toUserId: a.id,
-            isActive: true,
-          },
-          order: [['date', 'DESC']],
-        });
-
-        if (lastMessageR || lastMessageS) console.log("found")
-
-        a.lastMessage = {}
-        if (lastMessageR) {
-          a.lastMessage = lastMessageR.toJSON();
-        }
-
-        if (lastMessageS) {
-          const sj = lastMessageS.toJSON();
-          if (!lastMessageR) a.lastMessage = sj
-
-          if (sj.date > a.lastMessage.date) {
-            a.lastMessage = sj
-          }
-        }
-      }
     }
 
     if (userType === enums.User.SOBER_PATIENT) {
@@ -367,10 +330,69 @@ app.post('/messages/listAvailable', async (req, res) => {
       if (spg.length !== 0) {
         allAvailable.push({ isSupportGroup: true, ...spg[0].toJSON() })
       }
-      if (s) allAvailable.push(s)
-      if (u.sponsor) allAvailable.push(u.sponsor)
-      if (u.physician) allAvailable.push(u.physician)
+      if (s) allAvailable.push(s.toJSON())
+      if (u.sponsor) allAvailable.push(u.sponsor.toJSON())
+      if (u.physician) allAvailable.push(u.physician.toJSON())
     }
+
+    for (const a of allAvailable) {
+      a.lastMessage = {}
+
+      if (a.isSupportGroup) {
+        const lastMessageG = await Message.findOne({
+          where: {
+            toSupportGroupId: a.id,
+            isActive: true,
+          },
+          order: [['date', 'DESC']],
+        });
+
+        if (lastMessageG) {
+          a.lastMessage = lastMessageG.toJSON()
+        }
+        console.log(a,lastMessageG)
+
+      } else {
+
+        const lastMessageR = await Message.findOne({
+          where: {
+            fromId: a.id,
+            toUserId: userId,
+            isActive: true,
+          },
+          order: [['date', 'DESC']],
+        });
+
+        const lastMessageS = await Message.findOne({
+          where: {
+            fromId: userId,
+            toUserId: a.id,
+            isActive: true,
+          },
+          order: [['date', 'DESC']],
+        });
+
+        if (lastMessageR) {
+          a.lastMessage = lastMessageR.toJSON();
+        }
+
+        if (lastMessageS) {
+          const sj = lastMessageS.toJSON();
+          if (!lastMessageR) a.lastMessage = sj
+
+          if (sj.date > a.lastMessage.date) {
+            a.lastMessage = sj
+          }
+        }
+
+
+
+      }
+
+    }
+
+
+
 
     res.send(allAvailable);
 
