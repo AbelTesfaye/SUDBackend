@@ -338,9 +338,11 @@ app.post('/messages/listAvailable', async (req, res) => {
         for (const u of spgUsers) {
           uj = u.toJSON();
 
+          if(uj.id === userId) continue;
+
           let shouldAdd = true;
           for (const c of allAvailable) {
-            if (c.id === uj.id || c.id === userId) {
+            if (c.id === uj.id) {
               shouldAdd = false;
               break;
             }
