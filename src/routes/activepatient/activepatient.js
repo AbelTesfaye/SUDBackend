@@ -1,5 +1,6 @@
 const { Profile, RC, User, enums, SupportGroup, SupportGroupMember, PhysicianProvidedTherapeuticResource, Task, PhysicianProvidedTherapeuticResourceShare, MoodQuestionAnswer, Event, SoberStory } = require('../../db/models');
 const { isUndefined } = require('../../utils/utils');
+const { Op } = require('sequelize');
 
 const setupActivePatientRoutes = (app) => {
     /**
@@ -386,8 +387,8 @@ const setupActivePatientRoutes = (app) => {
                     isPublic: true,
                     RCId: userRCId,
                     type: enums.User.SOBER_PATIENT,
-                    lat: { $between: [lat - 0.5, lat + 0.5] },
-                    long: { $between: [long - 0.5, long + 0.5] },
+                    lat: { [Op.between]: [lat - 0.5, lat + 0.5] },
+                    long: { [Op.between]: [long - 0.5, long + 0.5] },
                 },
             });
 
