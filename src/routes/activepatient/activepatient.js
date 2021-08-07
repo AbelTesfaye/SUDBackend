@@ -358,7 +358,13 @@ const setupActivePatientRoutes = (app) => {
         } = req.body;
 
         try {
-            const s = await SoberStory.findByPk(id)
+            const s = await SoberStory.findByPk(id, {
+                include: {
+                    model: User,
+                    as: 'postedBy',
+                    include: Profile
+                }
+            })
 
             if (!s) throw Error('cant find sober story')
 
