@@ -331,7 +331,7 @@ const setupActivePatientRoutes = (app) => {
                 RCId: userRCId
             };
 
-            if(userType === enums.User.SOBER_PATIENT){
+            if (userType === enums.User.SOBER_PATIENT) {
                 filterObj['postedById'] = userId
             }
 
@@ -359,7 +359,7 @@ const setupActivePatientRoutes = (app) => {
         try {
             const s = await SoberStory.findByPk(id)
 
-            if(!s) throw Error('cant find sober story')
+            if (!s) throw Error('cant find sober story')
 
             res.send(s);
 
@@ -383,6 +383,7 @@ const setupActivePatientRoutes = (app) => {
             const ret = []
             const u = await User.findAll({
                 where: {
+                    isPublic: true,
                     RCId: userRCId,
                     type: enums.User.SOBER_PATIENT,
                     lat: { $between: [lat - 0.5, lat + 0.5] },
