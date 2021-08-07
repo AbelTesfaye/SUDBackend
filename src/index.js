@@ -310,7 +310,7 @@ app.post('/messages/listAvailable', async (req, res) => {
       allAvailable = [...allAvailable, ...caretakers]
     }
 
-    if (userType === enums.User.SOBER_PATIENT) {
+    if (userType === enums.User.SOBER_PATIENT || userType === enums.User.ACTIVE_PATIENT) {
       const u = await User.findByPk(userId, {
         include: [
           { model: User, as: 'sponsor', include: [Profile] },
@@ -326,13 +326,31 @@ app.post('/messages/listAvailable', async (req, res) => {
         include: [Profile]
       })
 
-      const spg = await u.getSupportGroups()
-      if (spg.length !== 0) {
-        allAvailable.push({ isSupportGroup: true, ...spg[0].toJSON() })
-      }
-
       if (s) allAvailable.push(s.toJSON())
       if (u.physician) allAvailable.push(u.physician.toJSON())
+
+      const spg = await u.getSupportGroups()
+      if (spg.length !== 0) {
+        const z = spg[0];
+        allAvailable.push({ isSupportGroup: true, ...z.toJSON() });
+
+        const spgUsers = await z.getUsers({ include: [Profile] });
+        for (const u of spgUsers) {
+          uj = u.toJSON();
+
+          let shouldAdd = true;
+          for (const c of allAvailable) {
+            if (c.id === uj.id || c.id === userId) {
+              shouldAdd = false;
+              break;
+            }
+          }
+
+          if (shouldAdd) {
+            allAvailable.push(uj);
+          }
+        }
+      }
     }
 
     for (const a of allAvailable) {
@@ -350,7 +368,7 @@ app.post('/messages/listAvailable', async (req, res) => {
         if (lastMessageG) {
           a.lastMessage = lastMessageG.toJSON()
         }
-        console.log(a,lastMessageG)
+        console.log(a, lastMessageG)
 
       } else {
 
@@ -384,15 +402,11 @@ app.post('/messages/listAvailable', async (req, res) => {
             a.lastMessage = sj
           }
         }
-
-
-
       }
-
     }
 
 
-
+    allAvailable = allAvailable.sort((a) => a.isSupportGroup ? -1 : 0)
 
     res.send(allAvailable);
 
