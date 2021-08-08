@@ -72,6 +72,38 @@ const setupCareTakerRoutes = (app) => {
             });
         }
     });
+
+    app.post('/caretaker/getPatient', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+
+        const {
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.CARETAKER) throw Error("you don't have the required permission to access this endpoint");
+
+            const u = await User.findAll({
+                plain: true,
+                where: {
+                    caretakerId: userId
+                },
+
+                include: [
+                    { model: Profile },
+                    { model: User, as: 'sponsor', include: [Profile] },
+                    { model: User, as: 'physician', include: [Profile] },
+                ]
+            });
+
+            res.send(u);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
 }
 
 module.exports = {
