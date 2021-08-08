@@ -361,9 +361,9 @@ app.post('/messages/listAvailable', async (req, res) => {
         where: {
           caretakerId: userId
         },
-        include: Profile,
 
         include: [
+          { model: Profile },
           { model: User, as: 'sponsor', include: [Profile] },
           { model: User, as: 'physician', include: [Profile] },
         ]
