@@ -338,7 +338,7 @@ app.post('/messages/listAvailable', async (req, res) => {
         for (const u of spgUsers) {
           uj = u.toJSON();
 
-          if(uj.id === userId) continue;
+          if (uj.id === userId) continue;
 
           let shouldAdd = true;
           for (const c of allAvailable) {
@@ -352,6 +352,27 @@ app.post('/messages/listAvailable', async (req, res) => {
             allAvailable.push(uj);
           }
         }
+      }
+    }
+
+    if (userType === enums.User.CARETAKER) {
+      const u = await User.findAll({
+        plain: true,
+        where: {
+          caretakerId: userId
+        },
+        include: Profile,
+
+        include: [
+          { model: User, as: 'sponsor', include: [Profile] },
+          { model: User, as: 'physician', include: [Profile] },
+        ]
+      });
+
+      if (u) {
+        if (u) allAvailable.push(u);
+        if (u.physician) allAvailable.push(u.physician);
+        if (u.sponsor) allAvailable.push(u.sponsor);
       }
     }
 
