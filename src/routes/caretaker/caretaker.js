@@ -48,22 +48,23 @@ const setupCareTakerRoutes = (app) => {
         }
     });
 
-    app.post('/location/publish', async (req, res) => {
+    app.get('/caretaker', async (req, res) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
-
         const {
-            lat = 0,
-            long = 0,
         } = req.body;
 
         try {
-            if (userType !== enums.User.SOBER_PATIENT) throw Error("you don't have the required permission to access this endpoint");
-            const u = await User.findByPk(userId);
-            u.lat = lat;
-            u.long = long;
-            await u.save();
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
-            res.send(u);
+            const users = await User.findAll({
+                where: {
+                    RCId: userRCId,
+                    type: enums.User.CARETAKER,
+                },
+                include: [Profile]
+            });
+
+            res.send(users);
 
         } catch (ex) {
             console.error(ex)
