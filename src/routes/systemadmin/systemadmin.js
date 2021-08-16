@@ -128,6 +128,26 @@ const setupSystemAdminRoutes = (app) => {
             });
         }
     });
+
+    app.get('/rc/list', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+        const {
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.SYSTEM_ADMIN) throw Error("you don't have the required permission to access this endpoint");
+
+            const rc = await RC.findAll();
+
+            res.send(rc);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
 }
 
 module.exports = {
