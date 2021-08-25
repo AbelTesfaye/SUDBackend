@@ -161,7 +161,20 @@ const setupSystemAdminRoutes = (app) => {
 
             const rc = await RC.findByPk(rId);
 
-            res.send(rc);
+            if (!rc) throw Error("rc not found");
+
+            const u = await User.findOne({
+                where: {
+                    RCId: rId,
+                    type: enums.User.RC_MANAGER,
+                },
+                include: [Profile]
+            });
+
+            const r = rc.toJSON();
+            r.manager = u.toJSON();
+
+            res.send(r);
 
         } catch (ex) {
             console.error(ex)
