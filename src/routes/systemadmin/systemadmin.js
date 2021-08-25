@@ -139,7 +139,24 @@ const setupSystemAdminRoutes = (app) => {
 
             const rc = await RC.findAll();
 
-            res.send(rc);
+            const rcs = [];
+
+            for (let r of rc) {
+                const u = await User.findOne({
+                    where: {
+                        RCId: r.id,
+                        type: enums.User.RC_MANAGER,
+                    },
+                    include: [Profile]
+                });
+
+                const rr = r.toJSON();
+                rr.manager = u.toJSON();
+
+                rcs.push(rr);
+            }
+
+            res.send(rcs);
 
         } catch (ex) {
             console.error(ex)
