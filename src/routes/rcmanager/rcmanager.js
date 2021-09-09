@@ -23,7 +23,8 @@ const setupRCManagerRoutes = (app) => {
                 defaults: {
                     name: "",
                     password: sha256(defaultPassword),
-                    defaultPassword
+                    defaultPassword,
+                    ...req.body,
                 }
             });
 
@@ -170,7 +171,8 @@ const setupRCManagerRoutes = (app) => {
                 defaults: {
                     name: "",
                     password: sha256(defaultPassword),
-                    defaultPassword
+                    defaultPassword,
+                    ...req.body,
                 }
             });
 
@@ -280,7 +282,8 @@ const setupRCManagerRoutes = (app) => {
                 defaults: {
                     name: "",
                     password: sha256(defaultPassword),
-                    defaultPassword
+                    defaultPassword,
+                    ...req.body,
                 }
             });
 

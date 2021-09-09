@@ -11,7 +11,7 @@ const setupSystemAdminRoutes = (app) => {
         const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
 
         const {
-            name = "",
+            RCName = "",
             managerEmail = "",
         } = req.body;
 
@@ -19,7 +19,7 @@ const setupSystemAdminRoutes = (app) => {
             if (userType !== enums.User.SYSTEM_ADMIN) throw Error("you don't have the required permission to access this endpoint");
             const [r] = await RC.findOrCreate({
                 where: {
-                    name
+                    name: RCName
                 }
             });
 
@@ -32,6 +32,7 @@ const setupSystemAdminRoutes = (app) => {
                     name: "",
                     password: sha256(defaultPassword),
                     defaultPassword,
+                    ...req.body,
                 }
             });
 
