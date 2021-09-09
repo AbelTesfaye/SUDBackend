@@ -1,5 +1,5 @@
 const { Profile, RC, User, enums } = require('../../db/models');
-const { sha256, isUndefined } = require('../../utils/utils')
+const { sha256, isUndefined, generateRandomPassword } = require('../../utils/utils')
 
 const setupSystemAdminRoutes = (app) => {
     /**
@@ -23,13 +23,15 @@ const setupSystemAdminRoutes = (app) => {
                 }
             });
 
+            const defaultPassword = generateRandomPassword()
             const [p] = await Profile.findOrCreate({
                 where: {
                     email: managerEmail,
                 },
                 defaults: {
                     name: "",
-                    password: sha256("")
+                    password: sha256(defaultPassword),
+                    defaultPassword,
                 }
             });
 
@@ -86,7 +88,7 @@ const setupSystemAdminRoutes = (app) => {
 
             if (!p) throw Error("there is no profile with that user id")
 
-            p.password = sha256("")
+            p.password = sha256(p.defaultPassword)
             await p.save();
 
             res.send(p);

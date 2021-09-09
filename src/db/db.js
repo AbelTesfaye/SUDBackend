@@ -1,3 +1,4 @@
+const { generateRandomPassword, sha256 } = require('../utils/utils');
 const { sequelize } = require('./con');
 const { User, Profile, enums, RC } = require('./models');
 
@@ -8,6 +9,8 @@ sequelize.authenticate().then(async () => {
     try {
         await sequelize.sync({ force: true });
         console.log("All models were synchronized successfully.");
+        
+        const defaultPassword = generateRandomPassword();
 
         const rc = await RC.create({
             name: "test rc"
@@ -21,7 +24,8 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "system admin",
                 email: "systemadmin@gmail.com",
-                password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
+                password: sha256(defaultPassword),
+                defaultPassword,    
             })
 
             p.setUser(u);
@@ -39,7 +43,8 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "rc manager",
                 email: "rcmanager@gmail.com",
-                password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
+                password: sha256(defaultPassword),
+                defaultPassword,     
             })
 
             p.setUser(u);
@@ -57,7 +62,8 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "physician",
                 email: "physician@gmail.com",
-                password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
+                password: sha256(defaultPassword),
+                defaultPassword,
             })
 
             p.setUser(u);
@@ -75,7 +81,8 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "active patient",
                 email: "activepatient@gmail.com",
-                password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
+                password: sha256(defaultPassword),
+                defaultPassword,    
             })
 
             p.setUser(u);
@@ -93,7 +100,8 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "sober patient",
                 email: "soberpatient@gmail.com",
-                password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
+                password: sha256(defaultPassword),
+                defaultPassword,    
             })
 
             p.setUser(u);
@@ -111,7 +119,8 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "care taker",
                 email: "caretaker@gmail.com",
-                password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" /* hash of empty string */,
+                password: sha256(defaultPassword),
+                defaultPassword,
             })
 
             p.setUser(u);

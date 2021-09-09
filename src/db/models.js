@@ -4,8 +4,10 @@ const { sequelize } = require('./con');
 const Profile = sequelize.define('Profile', {
     name: { type: DataTypes.TEXT, allowNull: false },
     email: { type: DataTypes.STRING, allowNull: false, unique: true },
+    defaultPassword: { type: DataTypes.TEXT, allowNull: false, },
+    password: { type: DataTypes.TEXT, allowNull: false, },
 
-    password: { type: DataTypes.TEXT, defaultValue: "" },
+    gender: { type: DataTypes.TEXT, defaultValue: "" },
     phoneNumber: { type: DataTypes.TEXT, defaultValue: "" },
     profilePictureUrl: { type: DataTypes.TEXT, defaultValue: "" },
 });

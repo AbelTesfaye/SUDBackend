@@ -1,5 +1,5 @@
 const { Profile, User, enums, Event, SoberStory } = require('../../db/models');
-const { sha256, isUndefined } = require('../../utils/utils')
+const { sha256, isUndefined, generateRandomPassword } = require('../../utils/utils')
 
 const setupRCManagerRoutes = (app) => {
     /**
@@ -15,13 +15,15 @@ const setupRCManagerRoutes = (app) => {
         try {
             if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
+            const defaultPassword = generateRandomPassword()
             const [p] = await Profile.findOrCreate({
                 where: {
                     email: physicianEmail,
                 },
                 defaults: {
                     name: "",
-                    password: sha256("")
+                    password: sha256(defaultPassword),
+                    defaultPassword
                 }
             });
 
@@ -100,7 +102,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("physician not found");
 
-            p.password = sha256("")
+            p.password = sha256(p.defaultPassword)
 
             await p.save();
 
@@ -160,13 +162,15 @@ const setupRCManagerRoutes = (app) => {
         try {
             if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
+            const defaultPassword = generateRandomPassword()
             const [p] = await Profile.findOrCreate({
                 where: {
                     email: activePatientEmail,
                 },
                 defaults: {
                     name: "",
-                    password: sha256("")
+                    password: sha256(defaultPassword),
+                    defaultPassword
                 }
             });
 
@@ -245,7 +249,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("patient not found");
 
-            p.password = sha256("")
+            p.password = sha256(p.defaultPassword)
 
             await p.save();
 
@@ -268,13 +272,15 @@ const setupRCManagerRoutes = (app) => {
         try {
             if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
+            const defaultPassword = generateRandomPassword()
             const [p] = await Profile.findOrCreate({
                 where: {
                     email: caretakerEmail,
                 },
                 defaults: {
                     name: "",
-                    password: sha256("")
+                    password: sha256(defaultPassword),
+                    defaultPassword
                 }
             });
 
@@ -352,7 +358,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("patient not found");
 
-            p.password = sha256("")
+            p.password = sha256(p.defaultPassword)
 
             await p.save();
 
