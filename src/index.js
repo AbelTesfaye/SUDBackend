@@ -14,6 +14,7 @@ const { setupActivePatientRoutes } = require('./routes/activepatient/activepatie
 const { setupSoberPatientRoutes } = require('./routes/soberpatient/soberpatient');
 const { setupCareTakerRoutes } = require('./routes/caretaker/caretaker');
 const { iLIKE } = require('./db/con');
+const remo = require('remo.io');
 
 cloudinary.config({
   cloud_name: 'dfifwdmr9',
@@ -529,4 +530,43 @@ setupCareTakerRoutes(app)
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
+})
+
+const http = require('http');
+
+const httpServer = http.createServer(app);
+
+const ONLINE_USERS = {};
+const api = {
+
+  getTimeNow: function () {
+    const d = new Date();
+    return d.toUTCString();
+  },
+
+  getNumberOfOnlineUsers: function (myId) {
+    ONLINE_USERS[myId] = Date.now();
+
+    const toDelete = []
+    for (const u in ONLINE_USERS) {
+      if ((ONLINE_USERS[u] + (5 * 1000)) < Date.now()) {
+        toDelete.push(u)
+      }
+    }
+
+    for (const u of toDelete) {
+      delete ONLINE_USERS[u]
+    }
+
+    const numOnline = Object.keys(ONLINE_USERS).length;
+
+    return `${numOnline} ${numOnline === 1 ? 'user is' : 'users are'} online`;
+  },
+
+}
+
+remo.createServer({ httpServer, api });
+
+httpServer.listen(3333, () => {
+  console.log('remo server is listening')
 })
