@@ -10,7 +10,7 @@ sequelize.authenticate().then(async () => {
         await sequelize.sync({ force: true });
         console.log("All models were synchronized successfully.");
         
-        const defaultPassword = generateRandomPassword();
+        const defaultPassword = 'p';
 
         const rc = await RC.create({
             name: "test rc"
