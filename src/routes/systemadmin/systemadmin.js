@@ -89,7 +89,7 @@ const setupSystemAdminRoutes = (app) => {
 
             if (!p) throw Error("there is no profile with that user id")
 
-            p.password = sha256(p.defaultPassword)
+            p.password = sha256(generateRandomPassword())
             await p.save();
 
             res.send(p);

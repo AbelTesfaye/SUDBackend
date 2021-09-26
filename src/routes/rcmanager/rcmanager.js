@@ -103,7 +103,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("physician not found");
 
-            p.password = sha256(p.defaultPassword)
+            p.password = sha256(generateRandomPassword())
 
             await p.save();
 
@@ -251,7 +251,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("patient not found");
 
-            p.password = sha256(p.defaultPassword)
+            p.password = sha256(generateRandomPassword())
 
             await p.save();
 
@@ -361,7 +361,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("patient not found");
 
-            p.password = sha256(p.defaultPassword)
+            p.password = sha256(generateRandomPassword())
 
             await p.save();
 
