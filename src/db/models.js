@@ -8,6 +8,7 @@ const Profile = sequelize.define('Profile', {
     password: { type: DataTypes.TEXT, allowNull: false, },
 
     gender: { type: DataTypes.TEXT, defaultValue: "" },
+    addictionType: { type: DataTypes.TEXT, defaultValue: "" },
     phoneNumber: { type: DataTypes.TEXT, defaultValue: "" },
     profilePictureUrl: { type: DataTypes.TEXT, defaultValue: "" },
 });

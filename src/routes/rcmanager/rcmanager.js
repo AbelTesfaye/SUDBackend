@@ -1,3 +1,4 @@
+const { iLIKE, iLIKESearch } = require('../../db/con');
 const { Profile, User, enums, Event, SoberStory } = require('../../db/models');
 const { sha256, isUndefined, generateRandomPassword } = require('../../utils/utils')
 
@@ -517,14 +518,14 @@ const setupRCManagerRoutes = (app) => {
 
             const physicianCount = await User.count({
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     type: enums.User.PHYSICIAN,
                 }
             });
 
             const activePatientCount = await User.count({
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     type: enums.User.ACTIVE_PATIENT,
                 }
             });
@@ -532,7 +533,7 @@ const setupRCManagerRoutes = (app) => {
             const activeFemalePatientCount = await User.count({
                 include: [{ model: Profile, where: { gender: 'female' } }],
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     type: enums.User.ACTIVE_PATIENT,
                 }
             });
@@ -540,14 +541,14 @@ const setupRCManagerRoutes = (app) => {
             const activeMalePatientCount = await User.count({
                 include: [{ model: Profile, where: { gender: 'male' } }],
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     type: enums.User.ACTIVE_PATIENT,
                 }
             });
 
             const soberPatientCount = await User.count({
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     type: enums.User.SOBER_PATIENT,
                 }
             });
@@ -555,7 +556,7 @@ const setupRCManagerRoutes = (app) => {
             const soberFemalePatientCount = await User.count({
                 include: [{ model: Profile, where: { gender: 'female' } }],
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     type: enums.User.SOBER_PATIENT,
                 }
             });
@@ -563,28 +564,60 @@ const setupRCManagerRoutes = (app) => {
             const soberMalePatientCount = await User.count({
                 include: [{ model: Profile, where: { gender: 'male' } }],
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     type: enums.User.SOBER_PATIENT,
+                }
+            });
+
+            const activePatientKhatAddictsCount = await User.count({
+                include: [{ model: Profile, where: { addictionType: iLIKESearch('addictionType', 'khat') } }],
+                where: {
+                    RCId: userRCId,
+                    type: enums.User.ACTIVE_PATIENT,
+                }
+            });
+
+            const activePatientCigaretteAddictsCount = await User.count({
+                include: [{ model: Profile, where: { addictionType: iLIKESearch('addictionType', 'cigarette') } }],
+                where: {
+                    RCId: userRCId,
+                    type: enums.User.ACTIVE_PATIENT,
+                }
+            });
+
+            const activePatientOpioidAddictsCount = await User.count({
+                include: [{ model: Profile, where: { addictionType: iLIKESearch('addictionType', 'opioid') } }],
+                where: {
+                    RCId: userRCId,
+                    type: enums.User.ACTIVE_PATIENT,
+                }
+            });
+
+            const activePatientCannabisAddictsCount = await User.count({
+                include: [{ model: Profile, where: { addictionType: iLIKESearch('addictionType', 'cannabis') } }],
+                where: {
+                    RCId: userRCId,
+                    type: enums.User.ACTIVE_PATIENT,
                 }
             });
 
             const activeEventsCount = await Event.count({
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     isActive: true,
                 }
             });
 
             const approvedStoryCount = await SoberStory.count({
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     isApproved: true,
                 }
             });
 
             const notApprovedStoryCount = await SoberStory.count({
                 where: {
-                    RCId: userId,
+                    RCId: userRCId,
                     isApproved: false,
                 }
             });
@@ -599,6 +632,11 @@ const setupRCManagerRoutes = (app) => {
                 soberPatientCount,
                 soberFemalePatientCount,
                 soberMalePatientCount,
+
+                activePatientKhatAddictsCount,
+                activePatientCigaretteAddictsCount,
+                activePatientOpioidAddictsCount,
+                activePatientCannabisAddictsCount,
 
                 activeEventsCount,
                 approvedStoryCount,

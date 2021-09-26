@@ -22,4 +22,8 @@ const iLIKE = (colName, lookupValue) => {
     return sequelize.where(sequelize.fn('LOWER', sequelize.col(colName)), 'LIKE', lookupValue.toLowerCase())
 }
 
-module.exports = { sequelize, iLIKE }
+const iLIKESearch = (colName, lookupValue) => {
+    return sequelize.where(sequelize.fn('LOWER', sequelize.col(colName)), 'LIKE', `%${lookupValue.toLowerCase()}%`)
+}
+
+module.exports = { sequelize, iLIKE, iLIKESearch }
