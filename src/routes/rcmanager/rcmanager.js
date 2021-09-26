@@ -506,6 +506,114 @@ const setupRCManagerRoutes = (app) => {
             });
         }
     });
+
+    app.get('/rcmanager/dashboard', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+        const {
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
+
+            const physicianCount = await User.count({
+                where: {
+                    RCId: userId,
+                    type: enums.User.PHYSICIAN,
+                }
+            });
+
+            const activePatientCount = await User.count({
+                where: {
+                    RCId: userId,
+                    type: enums.User.ACTIVE_PATIENT,
+                }
+            });
+
+            const activeFemalePatientCount = await User.count({
+                include: [{ model: Profile, where: { gender: 'female' } }],
+                where: {
+                    RCId: userId,
+                    type: enums.User.ACTIVE_PATIENT,
+                }
+            });
+
+            const activeMalePatientCount = await User.count({
+                include: [{ model: Profile, where: { gender: 'male' } }],
+                where: {
+                    RCId: userId,
+                    type: enums.User.ACTIVE_PATIENT,
+                }
+            });
+
+            const soberPatientCount = await User.count({
+                where: {
+                    RCId: userId,
+                    type: enums.User.SOBER_PATIENT,
+                }
+            });
+
+            const soberFemalePatientCount = await User.count({
+                include: [{ model: Profile, where: { gender: 'female' } }],
+                where: {
+                    RCId: userId,
+                    type: enums.User.SOBER_PATIENT,
+                }
+            });
+
+            const soberMalePatientCount = await User.count({
+                include: [{ model: Profile, where: { gender: 'male' } }],
+                where: {
+                    RCId: userId,
+                    type: enums.User.SOBER_PATIENT,
+                }
+            });
+
+            const activeEventsCount = await Event.count({
+                where: {
+                    RCId: userId,
+                    isActive: true,
+                }
+            });
+
+            const approvedStoryCount = await SoberStory.count({
+                where: {
+                    RCId: userId,
+                    isApproved: true,
+                }
+            });
+
+            const notApprovedStoryCount = await SoberStory.count({
+                where: {
+                    RCId: userId,
+                    isApproved: false,
+                }
+            });
+
+            const ret = {
+                physicianCount,
+
+                activePatientCount,
+                activeFemalePatientCount,
+                activeMalePatientCount,
+
+                soberPatientCount,
+                soberFemalePatientCount,
+                soberMalePatientCount,
+
+                activeEventsCount,
+                approvedStoryCount,
+                notApprovedStoryCount,
+            };
+
+            res.send(ret);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
 }
 
 

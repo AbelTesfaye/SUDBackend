@@ -203,6 +203,42 @@ const setupSystemAdminRoutes = (app) => {
             });
         }
     });
+
+    app.get('/systemadmin/dashboard', async (req, res) => {
+        const { profileId, userId, userRCId, userType } = req.decodedJwtObj;
+        const {
+        } = req.body;
+
+        try {
+            if (userType !== enums.User.SYSTEM_ADMIN) throw Error("you don't have the required permission to access this endpoint");
+
+            const activeRCCount = await RC.count({
+                where: {
+                    isActive: true
+                }
+            });
+
+            const inActiveRCCount = await RC.count({
+                where: {
+                    isActive: false
+                }
+            });
+
+
+            const ret = {
+                activeRCCount,
+                inActiveRCCount
+            }
+
+            res.send(ret);
+
+        } catch (ex) {
+            console.error(ex)
+            res.status(500).send({
+                error: ex.message
+            });
+        }
+    });
 }
 
 module.exports = {
