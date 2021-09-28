@@ -56,15 +56,29 @@ const setupCareTakerRoutes = (app) => {
         try {
             if (userType !== enums.User.RC_MANAGER) throw Error("you don't have the required permission to access this endpoint");
 
-            const users = await User.findAll({
+            const users = (await User.findAll({
                 where: {
                     RCId: userRCId,
                     type: enums.User.CARETAKER,
                 },
                 include: [Profile]
-            });
+            }))
 
-            res.send(users);
+            const allUsers = []
+            for (let i = 0; i < users.length; i++) {
+                const u = users[i].toJSON();
+                const caretakee = (await User.findOne({
+                    where: {
+                        caretakerId: u.id
+                    },
+                    include: [Profile]
+                }));
+
+                u.caretakee = caretakee;
+                allUsers.push(u)
+            }
+
+            res.send(allUsers);
 
         } catch (ex) {
             console.error(ex)
