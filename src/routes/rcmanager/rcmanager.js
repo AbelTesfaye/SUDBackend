@@ -601,6 +601,14 @@ const setupRCManagerRoutes = (app) => {
                 }
             });
 
+            const activePatientAlcoholAddictsCount = await User.count({
+                include: [{ model: Profile, where: { addictionType: iLIKESearch('addictionType', 'alcohol') } }],
+                where: {
+                    RCId: userRCId,
+                    type: enums.User.ACTIVE_PATIENT,
+                }
+            });
+
             const activeEventsCount = await Event.count({
                 where: {
                     RCId: userRCId,
@@ -637,6 +645,7 @@ const setupRCManagerRoutes = (app) => {
                 activePatientCigaretteAddictsCount,
                 activePatientOpioidAddictsCount,
                 activePatientCannabisAddictsCount,
+                activePatientAlcoholAddictsCount,
 
                 activeEventsCount,
                 approvedStoryCount,
