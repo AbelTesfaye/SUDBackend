@@ -1,5 +1,5 @@
 const { generateRandomPassword, sha256 } = require('../utils/utils');
-const { sequelize } = require('./con');
+const { sequelize } = require('./util');
 const { User, Profile, enums, RC } = require('./models');
 
 sequelize.authenticate().then(async () => {

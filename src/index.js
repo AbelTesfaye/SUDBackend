@@ -13,7 +13,7 @@ const { sha256, isUndefined } = require('./utils/utils');
 const { setupActivePatientRoutes } = require('./routes/activepatient/activepatient');
 const { setupSoberPatientRoutes } = require('./routes/soberpatient/soberpatient');
 const { setupCareTakerRoutes } = require('./routes/caretaker/caretaker');
-const { iLIKE } = require('./db/con');
+const { iLIKE } = require('./db/util');
 const remo = require('remo.io');
 
 cloudinary.config({
