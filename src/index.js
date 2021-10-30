@@ -17,9 +17,9 @@ const { iLIKE } = require('./db/util');
 const remo = require('remo.io');
 
 cloudinary.config({
-  cloud_name: 'dfifwdmr9',
-  api_key: '158848835582553',
-  api_secret: 'mh98mgs9xddxvzZl_Z6OTMzStFk'
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
 const cloudinaryUpload = (fileBuffer) => new Promise((resolve, reject) => {
