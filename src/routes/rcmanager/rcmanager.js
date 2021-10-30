@@ -1,4 +1,4 @@
-const { iLIKE, iLIKESearch } = require('../../db/con');
+const { iLIKE, iLIKESearch } = require('../../db/util');
 const { Profile, User, enums, Event, SoberStory } = require('../../db/models');
 const { sha256, isUndefined, generateRandomPassword } = require('../../utils/utils')
 

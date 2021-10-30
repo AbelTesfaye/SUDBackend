@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('./con');
+const { sequelize } = require('./util');
 
 const Profile = sequelize.define('Profile', {
     name: { type: DataTypes.TEXT, allowNull: false },
