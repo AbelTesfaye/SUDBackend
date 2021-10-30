@@ -9,12 +9,13 @@ const { JWT_SECRET } = require('./env/env');
 const { setupRCManagerRoutes } = require('./routes/rcmanager/rcmanager');
 const { setupSystemAdminRoutes } = require('./routes/systemadmin/systemadmin');
 const { setupPhysicianRoutes } = require('./routes/physician/physician');
-const { sha256, isUndefined } = require('./utils/utils');
+const { isUndefined } = require('./utils/utils');
 const { setupActivePatientRoutes } = require('./routes/activepatient/activepatient');
 const { setupSoberPatientRoutes } = require('./routes/soberpatient/soberpatient');
 const { setupCareTakerRoutes } = require('./routes/caretaker/caretaker');
 const { iLIKE } = require('./db/util');
 const remo = require('remo.io');
+const { hash, compare } = require('bcrypt')
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -42,17 +43,15 @@ app.get('/', (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { email = "", password = "" } = req.body;
-  const hashedPassword = sha256(password);
 
   try {
     const p = await Profile.findOne({
       where: {
-        email: iLIKE('email', email),
-        password: hashedPassword
+        email: iLIKE('email', email)
       }
     });
 
-    if (p === null) throw Error('invalid email/password');
+    if (p === null || !(await compare(password, p.password))) throw Error('invalid email/password');
 
     const u = await p.getUser();
 
@@ -137,7 +136,8 @@ app.post('/profile/update', async (req, res) => {
     wantsToSponsor = false,
     isPublic = false
   } = req.body;
-  const hashedPassword = sha256(password);
+
+  const hashedPassword = await hash(password, 10);
 
   try {
 

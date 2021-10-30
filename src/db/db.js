@@ -1,6 +1,7 @@
-const { generateRandomPassword, sha256 } = require('../utils/utils');
+const { generateRandomPassword } = require('../utils/utils');
 const { sequelize } = require('./util');
 const { User, Profile, enums, RC } = require('./models');
+const { hash } = require('bcrypt')
 
 sequelize.authenticate().then(async () => {
 
@@ -24,7 +25,7 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "system admin",
                 email: "systemadmin@gmail.com",
-                password: sha256(defaultPassword),
+                password: await hash(defaultPassword, 10),
                 defaultPassword,    
             })
 
@@ -43,7 +44,7 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "rc manager",
                 email: "rcmanager@gmail.com",
-                password: sha256(defaultPassword),
+                password: await hash(defaultPassword, 10),
                 defaultPassword,     
             })
 
@@ -62,7 +63,7 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "physician",
                 email: "physician@gmail.com",
-                password: sha256(defaultPassword),
+                password: await hash(defaultPassword, 10),
                 defaultPassword,
             })
 
@@ -81,7 +82,7 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "active patient",
                 email: "activepatient@gmail.com",
-                password: sha256(defaultPassword),
+                password: await hash(defaultPassword, 10),
                 defaultPassword,    
             })
 
@@ -100,7 +101,7 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "sober patient",
                 email: "soberpatient@gmail.com",
-                password: sha256(defaultPassword),
+                password: await hash(defaultPassword, 10),
                 defaultPassword,    
             })
 
@@ -119,7 +120,7 @@ sequelize.authenticate().then(async () => {
             const p = await Profile.create({
                 name: "care taker",
                 email: "caretaker@gmail.com",
-                password: sha256(defaultPassword),
+                password: await hash(defaultPassword, 10),
                 defaultPassword,
             })
 

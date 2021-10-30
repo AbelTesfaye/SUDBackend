@@ -1,6 +1,7 @@
 const { iLIKE, iLIKESearch } = require('../../db/util');
 const { Profile, User, enums, Event, SoberStory } = require('../../db/models');
-const { sha256, isUndefined, generateRandomPassword } = require('../../utils/utils')
+const { isUndefined, generateRandomPassword } = require('../../utils/utils');
+const { hash } = require('bcrypt');
 
 const setupRCManagerRoutes = (app) => {
     /**
@@ -23,7 +24,7 @@ const setupRCManagerRoutes = (app) => {
                 },
                 defaults: {
                     name: "",
-                    password: sha256(defaultPassword),
+                    password: await hash(defaultPassword, 10),
                     defaultPassword,
                     ...req.body,
                 }
@@ -104,7 +105,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("physician not found");
 
-            p.password = sha256(generateRandomPassword())
+            p.password = await hash(generateRandomPassword(), 10)
 
             await p.save();
 
@@ -171,7 +172,7 @@ const setupRCManagerRoutes = (app) => {
                 },
                 defaults: {
                     name: "",
-                    password: sha256(defaultPassword),
+                    password: await hash(defaultPassword, 10),
                     defaultPassword,
                     ...req.body,
                 }
@@ -252,7 +253,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("patient not found");
 
-            p.password = sha256(generateRandomPassword())
+            p.password = await hash(generateRandomPassword(), 10)
 
             await p.save();
 
@@ -282,7 +283,7 @@ const setupRCManagerRoutes = (app) => {
                 },
                 defaults: {
                     name: "",
-                    password: sha256(defaultPassword),
+                    password: await hash(defaultPassword, 10),
                     defaultPassword,
                     ...req.body,
                 }
@@ -362,7 +363,7 @@ const setupRCManagerRoutes = (app) => {
 
             if (!p) throw Error("patient not found");
 
-            p.password = sha256(generateRandomPassword())
+            p.password = await hash(generateRandomPassword(), 10)
 
             await p.save();
 

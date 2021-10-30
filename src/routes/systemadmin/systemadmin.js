@@ -1,5 +1,6 @@
+const { hash } = require('bcrypt');
 const { Profile, RC, User, enums } = require('../../db/models');
-const { sha256, isUndefined, generateRandomPassword } = require('../../utils/utils')
+const { isUndefined, generateRandomPassword } = require('../../utils/utils')
 
 const setupSystemAdminRoutes = (app) => {
     /**
@@ -30,7 +31,7 @@ const setupSystemAdminRoutes = (app) => {
                 },
                 defaults: {
                     name: "",
-                    password: sha256(defaultPassword),
+                    password: await hash(defaultPassword, 10),
                     defaultPassword,
                     ...req.body,
                 }
@@ -89,7 +90,7 @@ const setupSystemAdminRoutes = (app) => {
 
             if (!p) throw Error("there is no profile with that user id")
 
-            p.password = sha256(generateRandomPassword())
+            p.password = await hash(generateRandomPassword(), 10)
             await p.save();
 
             res.send(p);
